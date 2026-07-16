@@ -25,7 +25,8 @@ typedef enum
 } PRECEDENCE;
 
 //(-5*+(-2+4))*-8/3+1
-const char* source = "(-5*+(-2+4))*-8/2+1";
+//112 + 35 - 140
+const char* source = "112 + 35 - 140";
 uint8_t sourceIndex;
 
 bool isAtEnd()
@@ -45,9 +46,15 @@ char peek()
 	return source[sourceIndex]; 
 }
 
-uint8_t chToInt(char ch)
+int8_t chToInt(char ch[])
 {
-	return (uint8_t)ch - 48;
+	int8_t number = 0;
+	for(uint8_t i = 0;ch[i] != '\0';i++)
+	{
+		number *= 10;
+		number += (int8_t)ch[i] - 48;
+	}
+	return number;
 }
 
 bool isNumber(char ch)
@@ -55,7 +62,7 @@ bool isNumber(char ch)
 	return ch <= 57 && ch >= 48 ? true : false;
 }
 
-void emitConst(uint8_t l)
+void emitConst(int8_t l)
 {
 	byteCode[constIndex] = PUSHB;
 	constPool[constIndex++] = l;
@@ -120,7 +127,14 @@ void prefix(const char* source)
 	char l = advance();
 	if(isNumber(l)) 
 	{
-		emitConst(chToInt(l));
+		char str[4] = {'\0'};
+		uint8_t index = 1;
+		str[0] = l;
+		while(isNumber(peek()))
+		{
+			str[index++] = advance();
+		}
+		emitConst(chToInt(str));
 	}
 	else if(l == '(') 
 	{
