@@ -20,55 +20,81 @@ typedef enum
 	SUBS_PREC=1,
 	MUL_PREC=2,
 	DIV_PREC=2,
-	LPAREN_PREC=3,
+	POW_PREC=3,
+	LPAREN_PREC=4,
 	RPAREN_PREC=0
 } PRECEDENCE;
 
+static void expression(const char*, PRECEDENCE);
+
 //(-5*+(-2+4))*-8/3+1
 //112 + 35 - 140
-const char* source = "112 + 35 - 140";
+const char* source = "5-2-1";
 uint8_t sourceIndex;
 
-bool isAtEnd()
+static bool isAtEnd()
 {
 	return source[sourceIndex] == '\0' ? true : false;
 }
 
-char advance()
+static bool isNumber(char ch)
 {
-	if (isAtEnd()) return '\0';
-	return source[sourceIndex++]; 
+	return ch <= 57 && ch >= 48 ? true : false;
 }
 
-char peek()
+static bool isWhiteSpace(char ch)
+{
+	switch(ch)
+	{
+		case ' ':
+		case '\n':
+		case '\r':
+		case '\t':
+			return true;
+		default:
+			return false;
+	}
+}
+
+static char peek()
 {
 	if (isAtEnd()) return '\0';
 	return source[sourceIndex]; 
 }
 
-int8_t chToInt(char ch[])
+static void skipWhiteSpace()
 {
-	int8_t number = 0;
+	while(isWhiteSpace(peek()))
+	{
+		++sourceIndex;
+	}
+}
+
+static char advance()
+{
+	if (isAtEnd()) return '\0';
+	skipWhiteSpace();
+	return source[sourceIndex++]; 
+}
+
+static int16_t chToInt(char ch[])
+{
+	int16_t number = 0;
 	for(uint8_t i = 0;ch[i] != '\0';i++)
 	{
 		number *= 10;
-		number += (int8_t)ch[i] - 48;
+		number += (int16_t)ch[i] - 48;
 	}
 	return number;
 }
 
-bool isNumber(char ch)
-{
-	return ch <= 57 && ch >= 48 ? true : false;
-}
-
-void emitConst(int8_t l)
+static void emitConst(int16_t l)
 {
 	byteCode[constIndex] = PUSHB;
 	constPool[constIndex++] = l;
 }
 
-void emitInfixOperation(char op)
+static void emitInfixOperation(char op)
 {
 	switch(op)
 	{
@@ -84,11 +110,14 @@ void emitInfixOperation(char op)
 		case '/':
 			byteCode[constIndex++] = DIV;
 			break;
+		case '^':
+			byteCode[constIndex++] = POW;
+			break;
 		default:
 	}
 }
 
-void emitPrefixOperation(char op)
+static void emitPrefixOperation(char op)
 {
 	switch(op)
 	{
@@ -101,7 +130,7 @@ void emitPrefixOperation(char op)
 	}
 }
 
-PRECEDENCE precof(char ch)
+static PRECEDENCE precof(char ch)
 {
 	switch(ch)
 	{
@@ -113,6 +142,8 @@ PRECEDENCE precof(char ch)
 			return MUL_PREC;
 		case '/':
 			return DIV_PREC;
+		case '^':
+			return POW_PREC;
 		case '(':
 			return LPAREN_PREC;
 		case ')':
@@ -120,14 +151,12 @@ PRECEDENCE precof(char ch)
 	}
 }
 
-void expression(const char*, PRECEDENCE);
-
 void prefix(const char* source)
 {
 	char l = advance();
 	if(isNumber(l)) 
 	{
-		char str[4] = {'\0'};
+		char str[6] = {'\0'};
 		uint8_t index = 1;
 		str[0] = l;
 		while(isNumber(peek()))
@@ -151,26 +180,27 @@ static bool right_assoc(char op)
 {
 	switch(op)
 	{
-		case '-':
-			return false;
+		case '^':
+			return true;
 		default:
 			return false;
 	}
 }
 
-void expression(const char* source, PRECEDENCE prev_prec)
+static void expression(const char* source, PRECEDENCE prev_prec)
 {
 	prefix(source);
 	PRECEDENCE prec;
 	while(!isAtEnd())
 	{
 		prec = precof(peek());
+		char op = advance();
 		if(prec < prev_prec) 
 		{
 			if(prec == 0) advance();
 			return;
 		}
-		char op = advance();
+		//expression(source, prec);
 		if(right_assoc(op)) expression(source, prec);
 		else prefix(source);
 		emitInfixOperation(op);
@@ -213,6 +243,9 @@ void debug()
 				break;
 			case 7:
 				printf("%s %d\n", "DIV", constPool[i]);
+				break;
+			case 8:
+				printf("%s %d\n", "POW", constPool[i]);
 				break;
 		}
 		++i;

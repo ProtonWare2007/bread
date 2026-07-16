@@ -16,11 +16,12 @@ typedef enum
 	SUBS,
 	NEG,
 	MUL,
-	DIV
+	DIV,
+	POW
 } OPCODE;
 
-extern int8_t stack[STACK_SIZE];
-extern int8_t constPool[CONST_POOL_SIZE];
+extern int16_t stack[STACK_SIZE];
+extern int16_t constPool[CONST_POOL_SIZE];
 extern uint8_t constIndex;
 extern OPCODE byteCode[CODE_ARRAY_SIZE];
 

@@ -1,9 +1,9 @@
 #include "vm.h"
 
-int8_t stack[STACK_SIZE];
-int8_t* stackPointer = stack;
+int16_t stack[STACK_SIZE];
+int16_t* stackPointer = stack;
 
-int8_t constPool[CONST_POOL_SIZE];
+int16_t constPool[CONST_POOL_SIZE];
 uint8_t constIndex;
 
 OPCODE byteCode[CODE_ARRAY_SIZE];
@@ -59,6 +59,8 @@ void execute()
 				break;
 			case DIV:
 				divide();
+				break;
+			case POW:
 				break;
 			default:
 				return;
