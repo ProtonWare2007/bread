@@ -8,29 +8,39 @@ uint8_t constIndex;
 
 OPCODE byteCode[CODE_ARRAY_SIZE];
 
-static void push(int8_t byte)
+static void push(int16_t byte)
 {
 	*stackPointer = byte;
 	++stackPointer;
 }
 
-static int8_t pop() 
+static int16_t pop() 
 {
 	return *--stackPointer;
 }
 
 static void divide()
 {
-	int8_t num2 = pop();
-	int8_t num1 = pop();
+	int16_t num2 = pop();
+	int16_t num1 = pop();
 	push(num1 / num2);
 }
 
 static void substruct()
 {
-	int8_t num2 = pop();
-	int8_t num1 = pop();
+	int16_t num2 = pop();
+	int16_t num1 = pop();
 	push(num1 - num2);
+}
+
+static void power()
+{
+	int16_t num2 = pop();
+	int16_t num1 = pop();
+	int16_t number = 1;
+	for(int16_t t = 0;t < num2;t++)
+		number *= num1;
+	push(number);
 }
 
 void execute()
@@ -61,6 +71,7 @@ void execute()
 				divide();
 				break;
 			case POW:
+				power();
 				break;
 			default:
 				return;

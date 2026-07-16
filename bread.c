@@ -29,7 +29,7 @@ static void expression(const char*, PRECEDENCE);
 
 //(-5*+(-2+4))*-8/3+1
 //112 + 35 - 140
-const char* source = "5-2-1";
+const char* source = "2^0";
 uint8_t sourceIndex;
 
 static bool isAtEnd()
@@ -151,6 +151,17 @@ static PRECEDENCE precof(char ch)
 	}
 }
 
+static bool right_assoc(char op)
+{
+	switch(op)
+	{
+		case '^':
+			return true;
+		default:
+			return false;
+	}
+}
+
 void prefix(const char* source)
 {
 	char l = advance();
@@ -176,15 +187,9 @@ void prefix(const char* source)
 	}
 }
 
-static bool right_assoc(char op)
+static void power()
 {
-	switch(op)
-	{
-		case '^':
-			return true;
-		default:
-			return false;
-	}
+	prefix(source);
 }
 
 static void expression(const char* source, PRECEDENCE prev_prec)
@@ -200,9 +205,9 @@ static void expression(const char* source, PRECEDENCE prev_prec)
 			if(prec == 0) advance();
 			return;
 		}
-		//expression(source, prec);
-		if(right_assoc(op)) expression(source, prec);
-		else prefix(source);
+		expression(source, prec);
+		//if(right_assoc(op)) expression(source, prec);
+		//else power(source);
 		emitInfixOperation(op);
 	}
 }
