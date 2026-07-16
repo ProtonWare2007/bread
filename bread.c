@@ -24,7 +24,8 @@ typedef enum
 	RPAREN_PREC=0
 } PRECEDENCE;
 
-const char* source = "(-5*+(-2+4))*-8/3+1";
+//(-5*+(-2+4))*-8/3+1
+const char* source = "(-5*+(-2+4))*-8/2+1";
 uint8_t sourceIndex;
 
 bool isAtEnd()
@@ -132,6 +133,17 @@ void prefix(const char* source)
 	}
 }
 
+static bool right_assoc(char op)
+{
+	switch(op)
+	{
+		case '-':
+			return false;
+		default:
+			return false;
+	}
+}
+
 void expression(const char* source, PRECEDENCE prev_prec)
 {
 	prefix(source);
@@ -145,7 +157,8 @@ void expression(const char* source, PRECEDENCE prev_prec)
 			return;
 		}
 		char op = advance();
-		expression(source, prec);
+		if(right_assoc(op)) expression(source, prec);
+		else prefix(source);
 		emitInfixOperation(op);
 	}
 }

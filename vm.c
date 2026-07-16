@@ -26,6 +26,13 @@ static void divide()
 	push(num1 / num2);
 }
 
+static void substruct()
+{
+	int8_t num2 = pop();
+	int8_t num1 = pop();
+	push(num1 - num2);
+}
+
 void execute()
 {
 	for(uint8_t i = 0;i < 256 && byteCode[i] != RET;i++)
@@ -42,7 +49,7 @@ void execute()
 				push(pop() + pop());
 				break;
 			case SUBS:
-				push(-pop() + pop());
+				substruct();
 				break;
 			case NEG:
 				push(-pop());
