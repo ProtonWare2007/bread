@@ -29,7 +29,7 @@ static void expression(const char*, PRECEDENCE);
 
 //(-5*+(-2+4))*-8/3+1
 //112 + 35 - 140
-const char* source = "2^0";
+const char* source = "5-2*2";
 uint8_t sourceIndex;
 
 static bool isAtEnd()
@@ -204,8 +204,10 @@ static void expression(const char* source, PRECEDENCE prev_prec)
 		{
 			if(prec == 0) advance();
 			return;
-		}
-		expression(source, prec);
+		} else if(prec > prev_prec || right_assoc(op)) 
+			expression(source, prec);
+		else
+			prefix(source);
 		//if(right_assoc(op)) expression(source, prec);
 		//else power(source);
 		emitInfixOperation(op);
@@ -255,7 +257,7 @@ void debug()
 		}
 		++i;
 	}while(data != 0);
-	printf("%d\n", (int8_t)stack[0]);
+	printf("%d\n", (int16_t)stack[0]);
 }
 
 int main()

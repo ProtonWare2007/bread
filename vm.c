@@ -8,9 +8,9 @@ uint8_t constIndex;
 
 OPCODE byteCode[CODE_ARRAY_SIZE];
 
-static void push(int16_t byte)
+static void push(int16_t word)
 {
-	*stackPointer = byte;
+	*stackPointer = word;
 	++stackPointer;
 }
 
