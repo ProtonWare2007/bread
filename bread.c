@@ -16,12 +16,13 @@ prefix = (-prefix)* | NUMBER
 
 typedef enum
 {
-	ADD_PREC=1,
-	SUBS_PREC=1,
-	MUL_PREC=2,
-	DIV_PREC=2,
-	POW_PREC=3,
-	LPAREN_PREC=4,
+	NONE_PREC=1,
+	ADD_PREC=2,
+	SUBS_PREC=2,
+	MUL_PREC=3,
+	DIV_PREC=3,
+	POW_PREC=4,
+	LPAREN_PREC=5,
 	RPAREN_PREC=0
 } PRECEDENCE;
 
@@ -29,7 +30,7 @@ static void expression(const char*, PRECEDENCE);
 
 //(-5*+(-2+4))*-8/3+1
 //112 + 35 - 140
-const char* source = "5-2*2";
+const char* source = "";
 uint8_t sourceIndex;
 
 static bool isAtEnd()
@@ -73,7 +74,6 @@ static void skipWhiteSpace()
 static char advance()
 {
 	if (isAtEnd()) return '\0';
-	skipWhiteSpace();
 	return source[sourceIndex++]; 
 }
 
@@ -113,7 +113,7 @@ static void emitInfixOperation(char op)
 		case '^':
 			byteCode[constIndex++] = POW;
 			break;
-		default:
+		default:;
 	}
 }
 
@@ -126,7 +126,7 @@ static void emitPrefixOperation(char op)
 			break;
 		case '+':
 			break;
-		default:
+		default:;
 	}
 }
 
@@ -148,6 +148,7 @@ static PRECEDENCE precof(char ch)
 			return LPAREN_PREC;
 		case ')':
 			return RPAREN_PREC;
+		default:;
 	}
 }
 
@@ -164,6 +165,7 @@ static bool right_assoc(char op)
 
 void prefix(const char* source)
 {
+	//skipWhiteSpace();
 	char l = advance();
 	if(isNumber(l)) 
 	{
@@ -178,7 +180,7 @@ void prefix(const char* source)
 	}
 	else if(l == '(') 
 	{
-		expression(source, ADD_PREC);
+		expression(source, NONE_PREC);
 	}
 	else
 	{
@@ -195,28 +197,28 @@ static void power()
 static void expression(const char* source, PRECEDENCE prev_prec)
 {
 	prefix(source);
-	PRECEDENCE prec;
+	char op;
+	//skipWhiteSpace();
 	while(!isAtEnd())
 	{
-		prec = precof(peek());
-		char op = advance();
-		if(prec < prev_prec) 
+		op = peek();
+		PRECEDENCE prec = precof(op);
+		if(prec > prev_prec && !right_assoc(op) || right_assoc(op))
 		{
-			if(prec == 0) advance();
-			return;
-		} else if(prec > prev_prec || right_assoc(op)) 
+			advance();
 			expression(source, prec);
-		else
-			prefix(source);
-		//if(right_assoc(op)) expression(source, prec);
-		//else power(source);
+		} else
+		{
+			if(prec == RPAREN_PREC && prev_prec == 1) advance();
+			return;
+		}
 		emitInfixOperation(op);
 	}
 }
 
 void compile(const char* source)
 {
-	expression(source, ADD_PREC);
+	expression(source, NONE_PREC);
 }
 
 void debug()
