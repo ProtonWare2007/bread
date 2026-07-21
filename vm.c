@@ -1,5 +1,5 @@
+#include <stdio.h>
 #include "vm.h"
-#include <sys/types.h>
 
 int16_t stack[STACK_SIZE];
 int16_t* stackPointer = stack;
@@ -73,6 +73,9 @@ void execute()
 				break;
 			case POW:
 				power();
+				break;
+			case OUT:
+				printf("%d\n", (int16_t)stack[0]);
 				break;
 			default:
 				return;
