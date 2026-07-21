@@ -75,7 +75,7 @@ void execute()
 				power();
 				break;
 			case OUT:
-				printf("%d\n", (int16_t)stack[0]);
+				printf("%d\n", pop());
 				break;
 			default:
 				return;
