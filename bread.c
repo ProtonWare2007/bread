@@ -1,19 +1,12 @@
-#include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <errno.h>
 #include "vm.h"
 #include "compiler.h"
+#include "common.h"
 
-#define error(msg) fprintf(stderr, "%s\n", msg)
 void debug();
 void readFile(const char*);
-
-enum ERRORS
-{
-	EX_USAGE=64,
-	MEM_ALLOC=10
-};
 
 int main(int argc, char* argv[])
 {
@@ -22,7 +15,7 @@ int main(int argc, char* argv[])
 		readFile(argv[1]);
 		compile();
 		execute();
-		debug();
+		//debug();
 	} else
 	{
 		error("error: input file is required!");

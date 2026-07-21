@@ -17,7 +17,8 @@ typedef enum
 	NEG,
 	MUL,
 	DIV,
-	POW
+	POW,
+	OUT
 } OPCODE;
 
 extern int16_t stack[STACK_SIZE];

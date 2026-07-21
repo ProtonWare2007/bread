@@ -1,6 +1,9 @@
 #include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include "vm.h"
 #include "compiler.h"
+#include "common.h"
 
 char* source;
 uint8_t sourceIndex;
@@ -162,18 +165,22 @@ void prefix(const char* source)
 	}
 }
 
-static void power()
+static void consume(char token, const char* error_msg)
 {
-	prefix(source);
+	if(isAtEnd() || advance() != token)
+	{
+		error(error_msg);
+		exit(MISSING_TOKEN);
+	}
 }
 
 static void expression(const char* source, PRECEDENCE prev_prec)
 {
 	prefix(source);
 	char op;
-	while(!isAtEnd())
+	skipWhiteSpace();
+	while(!isAtEnd() && peek() != ';')
 	{
-		skipWhiteSpace();
 		op = peek();
 		PRECEDENCE prec = precof(op);
 		if(prec > prev_prec && !right_assoc(op) || right_assoc(op))
@@ -187,13 +194,39 @@ static void expression(const char* source, PRECEDENCE prev_prec)
 		}
 		emitInfixOperation(op);
 	}
+	consume(';',"error: missing semicolon after expression statement!");
+}
+
+static void writecStatement()
+{
+	const char* tokens = "writec";
+	for(uint8_t i = 0;i<6;i++)
+		consume(*(tokens+i),"error: unknown statement!");
+	if(!isWhiteSpace(peek()))
+	{
+		error("error: unknown statement!");
+		exit(UKNOWN_STATEMENT);
+	}
+	expression(source, NONE_PREC);
+	byteCode[constIndex++] = OUT;
 }
 
 void compile()
 {
+	skipWhiteSpace();
 	while(!isAtEnd())
 	{
-		expression(source, NONE_PREC);
+		switch(peek())
+		{
+			case 'w':
+				writecStatement();
+				break;
+			case 'd':
+				break;
+			default:
+				expression(source, NONE_PREC);
+		}
+		skipWhiteSpace();
 	}
 }
 
