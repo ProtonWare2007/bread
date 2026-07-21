@@ -1,4 +1,5 @@
 #include "vm.h"
+#include <sys/types.h>
 
 int16_t stack[STACK_SIZE];
 int16_t* stackPointer = stack;
@@ -8,13 +9,13 @@ uint8_t constIndex;
 
 OPCODE byteCode[CODE_ARRAY_SIZE];
 
-static void push(int16_t word)
+inline static void push(int16_t word)
 {
 	*stackPointer = word;
 	++stackPointer;
 }
 
-static int16_t pop() 
+inline static int16_t pop()
 {
 	return *--stackPointer;
 }
@@ -45,7 +46,7 @@ static void power()
 
 void execute()
 {
-	for(uint8_t i = 0;i < 256 && byteCode[i] != RET;i++)
+	for(uint8_t i = 0;i <= 255 && byteCode[i] != RET;i++)
 	{
 		switch(byteCode[i])
 		{
