@@ -1,2 +1,3 @@
 # bread
-bread is a simple interpreted programming language
+bread is an interpreted programming language that is written in C
+
