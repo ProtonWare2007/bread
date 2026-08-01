@@ -1,2 +1,2 @@
 # bread
-bread is an interpreted programming language
+bread is a simple interpreted programming language
